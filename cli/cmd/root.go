@@ -23,6 +23,7 @@ var rootCmds = map[string]execFunc{}
 func Execute() error {
 	commands := []Command{
 		NewOutputCommand(),
+		NewLedCommand(),
 	}
 
 	flag.Usage = func() {
