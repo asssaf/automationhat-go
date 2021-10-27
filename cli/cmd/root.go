@@ -6,8 +6,6 @@ import (
 	"fmt"
 )
 
-type execFunc func([]string) error
-
 type Command interface {
 	Init([]string) error
 	Execute() error
@@ -17,8 +15,6 @@ type Command interface {
 var (
 	outputCmd = flag.NewFlagSet("output", flag.ExitOnError)
 )
-
-var rootCmds = map[string]execFunc{}
 
 func Execute() error {
 	commands := []Command{
