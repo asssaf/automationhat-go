@@ -7,6 +7,27 @@ import (
 	"periph.io/x/host/v3/rpi"
 )
 
+var (
+	LedADC1     = 0
+	LedADC2     = 1
+	LedADC3     = 2
+	LedOutput1  = 3
+	LedOutput2  = 4
+	LedOutput3  = 5
+	LedRelay1NO = 6
+	LedRelay1NC = 7
+	LedRelay2NO = 8
+	LedRelay2NC = 9
+	LedRelay3NO = 10
+	LedRelay3NC = 11
+	LedInput3   = 12
+	LedInput2   = 13
+	LedInput1   = 14
+	LedWarn     = 15 // red
+	LedComm     = 16 // blue
+	LedPower    = 17 // green
+)
+
 // Dev represents an Automation HAT
 type Dev struct {
 	output1 gpio.PinOut
