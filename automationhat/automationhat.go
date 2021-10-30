@@ -28,8 +28,17 @@ var (
 	LedPower    = 17 // green
 )
 
+type Opts struct {
+	AutoLeds bool
+}
+
+var DefaultOpts = Opts{
+	AutoLeds: true,
+}
+
 // Dev represents an Automation HAT
 type Dev struct {
+	opts    Opts
 	output1 gpio.PinOut
 	output2 gpio.PinOut
 	output3 gpio.PinOut
@@ -37,7 +46,7 @@ type Dev struct {
 }
 
 // NewAutomationHat returns a automationhat driver.
-func NewAutomationHat() (*Dev, error) {
+func NewAutomationHat(opts *Opts) (*Dev, error) {
 	i2cPort, err := i2creg.Open("/dev/i2c-1")
 	if err != nil {
 		return nil, err
@@ -49,10 +58,25 @@ func NewAutomationHat() (*Dev, error) {
 	}
 
 	dev := &Dev{
+		opts:    *opts,
 		output1: rpi.P1_29, // GPIO 5
 		output2: rpi.P1_32, // GPIO 12
 		output3: rpi.P1_31, // GPIO 6
 		leds:    leds,
+	}
+
+	if dev.opts.AutoLeds {
+		if err := dev.leds.WakeUp(); err != nil {
+			return nil, err
+		}
+
+		if err := dev.leds.SwitchAll(true); err != nil {
+			return nil, err
+		}
+
+		if err := dev.leds.Brightness(LedPower, 0x01); err != nil {
+			return nil, err
+		}
 	}
 
 	return dev, nil
