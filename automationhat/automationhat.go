@@ -57,7 +57,8 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 
 	leds, err := sn3218.New(i2cPort)
 	if err != nil {
-		return nil, err
+		// automationhat mini doesn't have leds
+		leds = nil
 	}
 
 	dev := &Dev{
@@ -71,7 +72,7 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 		leds:    leds,
 	}
 
-	if dev.opts.AutoLeds {
+	if dev.leds != nil && dev.opts.AutoLeds {
 		if err := dev.leds.WakeUp(); err != nil {
 			return nil, err
 		}
@@ -148,8 +149,10 @@ func (d *Dev) Halt() error {
 		return err
 	}
 
-	if err := d.leds.Halt(); err != nil {
-		return err
+	if d.leds != nil {
+		if err := d.leds.Halt(); err != nil {
+			return err
+		}
 	}
 
 	return nil

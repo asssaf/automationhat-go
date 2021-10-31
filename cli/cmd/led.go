@@ -64,6 +64,9 @@ func (c *LedCommand) Execute() error {
 	// calling halt will reset the chip
 
 	leds := hat.GetLeds()
+	if leds == nil {
+		fmt.Printf("This hat doesn't have leds\n")
+	}
 
 	if on, brightness, err := leds.GetState(1); err != nil {
 		log.Fatal(err)
