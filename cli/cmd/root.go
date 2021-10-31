@@ -19,6 +19,7 @@ var (
 func Execute() error {
 	commands := []Command{
 		NewOutputCommand(),
+		NewInputCommand(),
 		NewLedCommand(),
 	}
 

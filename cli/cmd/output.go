@@ -89,7 +89,7 @@ func (c *OutputCommand) Execute() error {
 		log.Fatal(err)
 	}
 
-	hat, err := automationhat.NewAutomationHat()
+	hat, err := automationhat.NewAutomationHat(&automationhat.DefaultOpts)
 	if err != nil {
 		log.Fatal(err)
 	}

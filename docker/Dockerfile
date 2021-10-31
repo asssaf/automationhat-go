@@ -12,7 +12,7 @@ COPY go.mod $APP_ROOT/
 RUN go mod download
 
 COPY . $APP_ROOT/
-RUN go build -o automationhat
+RUN go build -o /automationhat ./cli/
 
 
 FROM --platform=linux/arm/v6 arm32v6/alpine:3.13.5
@@ -20,6 +20,6 @@ FROM --platform=linux/arm/v6 arm32v6/alpine:3.13.5
 ENV APP_ROOT=/root
 WORKDIR /$APP_ROOT
 
-COPY --from=builder /root/automationhat /root/automationhat
+COPY --from=builder /automationhat /root/automationhat
 
 ENTRYPOINT [ "/root/automationhat" ]
