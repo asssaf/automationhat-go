@@ -42,6 +42,9 @@ type Dev struct {
 	output1 gpio.PinOut
 	output2 gpio.PinOut
 	output3 gpio.PinOut
+	input1  gpio.PinIn
+	input2  gpio.PinIn
+	input3  gpio.PinIn
 	leds    *sn3218.Dev
 }
 
@@ -62,6 +65,9 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 		output1: rpi.P1_29, // GPIO 5
 		output2: rpi.P1_32, // GPIO 12
 		output3: rpi.P1_31, // GPIO 6
+		input1:  rpi.P1_37, // GPIO 26
+		input2:  rpi.P1_38, // GPIO 20
+		input3:  rpi.P1_40, // GPIO 21
 		leds:    leds,
 	}
 
@@ -87,14 +93,29 @@ func (d *Dev) GetOutput1() gpio.PinOut {
 	return d.output1
 }
 
-// GetOutput1 returns gpio.PinOut corresponding to output 2
+// GetOutput2 returns gpio.PinOut corresponding to output 2
 func (d *Dev) GetOutput2() gpio.PinOut {
 	return d.output2
 }
 
-// GetOutput1 returns gpio.PinOut corresponding to output 3
+// GetOutput3 returns gpio.PinOut corresponding to output 3
 func (d *Dev) GetOutput3() gpio.PinOut {
 	return d.output3
+}
+
+// GetInput1 returns gpio.PinIn corresponding to input 1
+func (d *Dev) GetInput1() gpio.PinIn {
+	return d.input1
+}
+
+// GetInput2 returns gpio.PinIn corresponding to input 2
+func (d *Dev) GetInput2() gpio.PinIn {
+	return d.input2
+}
+
+// GetInput3 returns gpio.PinIn corresponding to input 3
+func (d *Dev) GetInput3() gpio.PinIn {
+	return d.input3
 }
 
 func (d *Dev) GetLeds() *sn3218.Dev {
@@ -112,6 +133,18 @@ func (d *Dev) Halt() error {
 	}
 
 	if err := d.output3.Halt(); err != nil {
+		return err
+	}
+
+	if err := d.input1.Halt(); err != nil {
+		return err
+	}
+
+	if err := d.input2.Halt(); err != nil {
+		return err
+	}
+
+	if err := d.input3.Halt(); err != nil {
 		return err
 	}
 
