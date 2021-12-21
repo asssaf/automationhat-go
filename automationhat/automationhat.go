@@ -1,10 +1,17 @@
 package automationhat
 
 import (
+	"errors"
+	"fmt"
+
 	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/i2c/i2creg"
+	"periph.io/x/conn/v3/spi/spireg"
 	"periph.io/x/devices/v3/sn3218"
 	"periph.io/x/host/v3/rpi"
+
+	"github.com/asssaf/st7735-go/st7735"
 )
 
 var (
@@ -46,6 +53,7 @@ type Dev struct {
 	input2  gpio.PinIn
 	input3  gpio.PinIn
 	leds    *sn3218.Dev
+	display *st7735.Dev
 }
 
 // NewAutomationHat returns a automationhat driver.
@@ -61,6 +69,12 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 		leds = nil
 	}
 
+	display, err := initDisplay()
+	if err != nil {
+		// automationhat doesn't have a display
+		display = nil
+	}
+
 	dev := &Dev{
 		opts:    *opts,
 		output1: rpi.P1_29, // GPIO 5
@@ -70,6 +84,7 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 		input2:  rpi.P1_38, // GPIO 20
 		input3:  rpi.P1_40, // GPIO 21
 		leds:    leds,
+		display: display,
 	}
 
 	if dev.leds != nil && dev.opts.AutoLeds {
@@ -86,7 +101,35 @@ func NewAutomationHat(opts *Opts) (*Dev, error) {
 		}
 	}
 
+	if dev.display != nil && dev.opts.AutoLeds {
+		dev.display.SetBacklight(true)
+
+		if err := dev.display.Init(); err != nil {
+			return nil, err
+		}
+	}
+
 	return dev, nil
+}
+
+func initDisplay() (*st7735.Dev, error) {
+	spiPort, err := spireg.Open("SPI0.1")
+	if err != nil {
+		return nil, err
+	}
+
+	dcPin := gpioreg.ByName("9")
+	if dcPin == nil {
+		return nil, errors.New(fmt.Sprintf("dc pin not found: %s", 9))
+	}
+
+	backlightPin := gpioreg.ByName("25")
+	if backlightPin == nil {
+		return nil, errors.New(fmt.Sprintf("backlight pin not found: %s", 25))
+	}
+
+	display, err := st7735.New(spiPort, dcPin, nil, backlightPin, &st7735.DefaultOpts)
+	return display, err
 }
 
 // GetOutput1 returns gpio.PinOut corresponding to output 1
@@ -151,6 +194,12 @@ func (d *Dev) Halt() error {
 
 	if d.leds != nil {
 		if err := d.leds.Halt(); err != nil {
+			return err
+		}
+	}
+
+	if d.display != nil {
+		if err := d.display.Halt(); err != nil {
 			return err
 		}
 	}
